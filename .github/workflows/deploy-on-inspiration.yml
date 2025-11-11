@@ -1,0 +1,38 @@
+name: Auto-Deploy to Firebase on Inspiration Update
+
+on:
+  push:
+    branches: [ main, master ]
+    paths:
+      - 'assets/inspirations.json'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install Firebase CLI
+      run: npm install -g firebase-tools
+      
+    - name: Deploy to Firebase Hosting
+      env:
+        FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+      run: |
+        echo "🚀 Deploying WORMDOVE website with updated inspirations..."
+        firebase deploy --token "$FIREBASE_TOKEN" --project "${{ secrets.FIREBASE_PROJECT_ID }}"
+        echo "✅ Deployment complete!"
+        
+    - name: Notify deployment
+      run: |
+        echo "🎵 WORMDOVE website updated with latest inspirations!"
+        echo "🌐 Live at: https://${{ secrets.FIREBASE_PROJECT_ID }}.web.app"
